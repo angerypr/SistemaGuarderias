@@ -6,4 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SistemaGuarderias.Application\SistemaGuarderias.Application.csproj" />
+    <ProjectReference Include="..\SistemaGuarderias.Infrastructure\SistemaGuarderias.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
