@@ -32,6 +32,11 @@ namespace SistemaGuarderias.Api.Controllers
                 })
                 .ToListAsync();
 
+            if (ninos.Count == 0)
+            {
+                return NotFound(new { mensaje = "No se encontraron niños en la base de datos." });
+            }
+
             return Ok(ninos);
         }
 
@@ -41,7 +46,7 @@ namespace SistemaGuarderias.Api.Controllers
             var nino = await _context.Ninos.FindAsync(id);
             if (nino == null)
             {
-                return NotFound();
+                return NotFound(new { mensaje = $"No se encontró un niño con el ID {id}." });
             }
 
             var dto = new NinoDTO
@@ -60,6 +65,21 @@ namespace SistemaGuarderias.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<NinoDTO>> Create(NinoDTO dto)
         {
+            if (await _context.Ninos.AnyAsync(n => n.Id == dto.Id))
+            {
+                return BadRequest(new { mensaje = "El ID del niño ya existe en la base de datos." });
+            }
+
+            if (!await _context.Guarderias.AnyAsync(g => g.Id == dto.GuarderiaId))
+            {
+                return BadRequest(new { mensaje = "No se encontró una guardería con el ID especificado." });
+            }
+
+            if (!await _context.Tutores.AnyAsync(t => t.Id == dto.TutorId))
+            {
+                return BadRequest(new { mensaje = "No se encontró un tutor con el ID especificado." });
+            }
+
             var nino = new Nino
             {
                 Nombre = dto.Nombre,
@@ -82,7 +102,7 @@ namespace SistemaGuarderias.Api.Controllers
                 TutorId = nino.TutorId
             };
 
-            return CreatedAtAction(nameof(GetById), new { id = nino.Id }, createdDto);
+            return CreatedAtAction(nameof(GetById), new { id = nino.Id }, new { mensaje = "Niño agregado correctamente.", nino });
         }
 
         [HttpPut("{id}")]
@@ -91,7 +111,17 @@ namespace SistemaGuarderias.Api.Controllers
             var nino = await _context.Ninos.FindAsync(id);
             if (nino == null)
             {
-                return NotFound();
+                return NotFound(new { mensaje = $"No se encontró un niño con el ID {id}." });
+            }
+
+            if (!await _context.Guarderias.AnyAsync(g => g.Id == dto.GuarderiaId))
+            {
+                return BadRequest(new { mensaje = "No se encontró una guardería con el ID especificado." });
+            }
+
+            if (!await _context.Tutores.AnyAsync(t => t.Id == dto.TutorId))
+            {
+                return BadRequest(new { mensaje = "No se encontró un tutor con el ID especificado." });
             }
 
             nino.Nombre = dto.Nombre;
@@ -103,7 +133,7 @@ namespace SistemaGuarderias.Api.Controllers
             _context.Entry(nino).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new { mensaje = "Niño actualizado correctamente." });
         }
 
         [HttpDelete("{id}")]
@@ -112,13 +142,13 @@ namespace SistemaGuarderias.Api.Controllers
             var nino = await _context.Ninos.FindAsync(id);
             if (nino == null)
             {
-                return NotFound();
+                return NotFound(new { mensaje = $"No se encontró un niño con el ID {id}." });
             }
 
             _context.Ninos.Remove(nino);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new { mensaje = "Niño eliminado correctamente." });
         }
     }
 }

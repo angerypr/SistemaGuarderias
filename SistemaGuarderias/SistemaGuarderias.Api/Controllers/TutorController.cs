@@ -32,6 +32,11 @@ namespace SistemaGuarderias.Api.Controllers
                 })
                 .ToListAsync();
 
+            if (tutores.Count == 0)
+            {
+                return NotFound(new { mensaje = "No se encontraron tutores en la base de datos." });
+            }
+
             return Ok(tutores);
         }
 
@@ -41,7 +46,7 @@ namespace SistemaGuarderias.Api.Controllers
             var tutor = await _context.Tutores.FindAsync(id);
             if (tutor == null)
             {
-                return NotFound();
+                return NotFound(new { mensaje = $"No se encontró un tutor con el ID {id}." });
             }
 
             var dto = new TutorDTO
@@ -60,6 +65,11 @@ namespace SistemaGuarderias.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<TutorDTO>> Create(TutorDTO dto)
         {
+            if (await _context.Tutores.AnyAsync(t => t.Cedula == dto.Cedula))
+            {
+                return BadRequest(new { mensaje = "Ya existe un tutor con esta cédula." });
+            }
+
             var tutor = new Tutor
             {
                 Nombre = dto.Nombre,
@@ -91,7 +101,12 @@ namespace SistemaGuarderias.Api.Controllers
             var tutor = await _context.Tutores.FindAsync(id);
             if (tutor == null)
             {
-                return NotFound();
+                return NotFound(new { mensaje = $"No se encontró un tutor con el ID {id}." });
+            }
+
+            if (await _context.Tutores.AnyAsync(t => t.Id != id && t.Cedula == dto.Cedula))
+            {
+                return BadRequest(new { mensaje = "Ya existe otro tutor con esta cédula." });
             }
 
             tutor.Nombre = dto.Nombre;
@@ -112,13 +127,13 @@ namespace SistemaGuarderias.Api.Controllers
             var tutor = await _context.Tutores.FindAsync(id);
             if (tutor == null)
             {
-                return NotFound();
+                return NotFound(new { mensaje = $"No se encontró un tutor con el ID {id}." });
             }
 
             _context.Tutores.Remove(tutor);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new { mensaje = "Tutor eliminado correctamente." });
         }
     }
 }

@@ -31,6 +31,9 @@ namespace SistemaGuarderias.Api.Controllers
                 })
                 .ToListAsync();
 
+            if (!asistencias.Any())
+                return NotFound("No se encontraron asistencias en la base de datos.");
+
             return Ok(asistencias);
         }
 
@@ -40,25 +43,30 @@ namespace SistemaGuarderias.Api.Controllers
             var asistencia = await _context.Asistencias.FindAsync(id);
 
             if (asistencia == null)
-            {
-                return NotFound();
-            }
+                return NotFound($"No se encontró una asistencia con ID {id}.");
 
-            var dto = new AsistenciaDTO
+            return Ok(new AsistenciaDTO
             {
                 Id = asistencia.Id,
                 NinoId = asistencia.NinoId,
                 GuarderiaId = asistencia.GuarderiaId,
                 Fecha = asistencia.Fecha,
                 Presente = asistencia.Presente
-            };
-
-            return Ok(dto);
+            });
         }
 
         [HttpPost]
         public async Task<ActionResult<AsistenciaDTO>> Create(AsistenciaDTO dto)
         {
+            if (await _context.Asistencias.AnyAsync(a => a.Id == dto.Id))
+                return Conflict($"Ya existe una asistencia con ID {dto.Id}.");
+
+            if (!await _context.Ninos.AnyAsync(n => n.Id == dto.NinoId))
+                return NotFound($"No se encontró un niño con ID {dto.NinoId}.");
+
+            if (!await _context.Guarderias.AnyAsync(g => g.Id == dto.GuarderiaId))
+                return NotFound($"No se encontró una guardería con ID {dto.GuarderiaId}.");
+
             var asistencia = new Asistencia
             {
                 NinoId = dto.NinoId,
@@ -70,13 +78,17 @@ namespace SistemaGuarderias.Api.Controllers
             _context.Asistencias.Add(asistencia);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = asistencia.Id }, new AsistenciaDTO
+            return CreatedAtAction(nameof(GetById), new { id = asistencia.Id }, new
             {
-                Id = asistencia.Id,
-                NinoId = asistencia.NinoId,
-                GuarderiaId = asistencia.GuarderiaId,
-                Fecha = asistencia.Fecha,
-                Presente = asistencia.Presente
+                Message = "Asistencia agregada correctamente.",
+                Asistencia = new AsistenciaDTO
+                {
+                    Id = asistencia.Id,
+                    NinoId = asistencia.NinoId,
+                    GuarderiaId = asistencia.GuarderiaId,
+                    Fecha = asistencia.Fecha,
+                    Presente = asistencia.Presente
+                }
             });
         }
 
@@ -85,16 +97,19 @@ namespace SistemaGuarderias.Api.Controllers
         {
             var asistencia = await _context.Asistencias.FindAsync(id);
             if (asistencia == null)
-            {
-                return NotFound();
-            }
+                return NotFound($"No se encontró una asistencia con ID {id}.");
+
+            if (!await _context.Ninos.AnyAsync(n => n.Id == dto.NinoId))
+                return NotFound($"No se encontró un niño con ID {dto.NinoId}.");
+
+            if (!await _context.Guarderias.AnyAsync(g => g.Id == dto.GuarderiaId))
+                return NotFound($"No se encontró una guardería con ID {dto.GuarderiaId}.");
 
             asistencia.Presente = dto.Presente;
-
             _context.Entry(asistencia).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Asistencia actualizada correctamente.");
         }
 
         [HttpDelete("{id}")]
@@ -102,14 +117,12 @@ namespace SistemaGuarderias.Api.Controllers
         {
             var asistencia = await _context.Asistencias.FindAsync(id);
             if (asistencia == null)
-            {
-                return NotFound();
-            }
+                return NotFound($"No se encontró una asistencia con ID {id}.");
 
             _context.Asistencias.Remove(asistencia);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Asistencia eliminada correctamente.");
         }
     }
 }

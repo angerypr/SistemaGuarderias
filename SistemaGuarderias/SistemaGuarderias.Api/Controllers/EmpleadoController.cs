@@ -34,6 +34,11 @@ namespace SistemaGuarderias.Api.Controllers
                 })
                 .ToListAsync();
 
+            if (empleados.Count == 0)
+            {
+                return NotFound(new { mensaje = "No se encontraron empleados en la base de datos." });
+            }
+
             return Ok(empleados);
         }
 
@@ -44,7 +49,7 @@ namespace SistemaGuarderias.Api.Controllers
 
             if (empleado == null)
             {
-                return NotFound();
+                return NotFound(new { mensaje = $"No se encontró un empleado con el ID {id}." });
             }
 
             var dto = new EmpleadoDTO
@@ -65,6 +70,16 @@ namespace SistemaGuarderias.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<EmpleadoDTO>> Create(EmpleadoDTO dto)
         {
+            if (!await _context.Guarderias.AnyAsync(g => g.Id == dto.GuarderiaId))
+            {
+                return BadRequest(new { mensaje = "No se puede agregar el empleado. La guardería especificada no existe." });
+            }
+
+            if (await _context.Empleados.AnyAsync(e => e.Cedula == dto.Cedula))
+            {
+                return Conflict(new { mensaje = "Ya existe un empleado con la misma cédula." });
+            }
+
             var empleado = new Empleado
             {
                 Nombre = dto.Nombre,
@@ -98,23 +113,37 @@ namespace SistemaGuarderias.Api.Controllers
         public async Task<IActionResult> Update(int id, EmpleadoDTO dto)
         {
             var empleado = await _context.Empleados.FindAsync(id);
+            
             if (empleado == null)
             {
-                return NotFound();
+                return NotFound(new {mensaje = $"No se encontró un empleado con el ID {id}."});
             }
 
-            empleado.Nombre = dto.Nombre;
-            empleado.Apellido = dto.Apellido;
-            empleado.Cedula = dto.Cedula;
-            empleado.Cargo = dto.Cargo;
-            empleado.Telefono = dto.Telefono;
-            empleado.CorreoElectronico = dto.CorreoElectronico;
-            empleado.GuarderiaId = dto.GuarderiaId;
+            if (await _context.Empleados.AnyAsync(e => e.Cedula == dto.Cedula && e.Id != id))
+            {
+                return Conflict(new { mensaje = "Ya existe otro empleado con la misma cédula." });
+            }
 
-            _context.Entry(empleado).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            try
+            {
 
-            return NoContent();
+                empleado.Nombre = dto.Nombre;
+                empleado.Apellido = dto.Apellido;
+                empleado.Cedula = dto.Cedula;
+                empleado.Cargo = dto.Cargo;
+                empleado.Telefono = dto.Telefono;
+                empleado.CorreoElectronico = dto.CorreoElectronico;
+                empleado.GuarderiaId = dto.GuarderiaId;
+
+                _context.Entry(empleado).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = "Ocurrió un error al actualizar el empleado."});
+            }
+
+            return Ok(new { mensaje = "Empleado actualizado correctamente." });
         }
 
         [HttpDelete("{id}")]
@@ -123,13 +152,21 @@ namespace SistemaGuarderias.Api.Controllers
             var empleado = await _context.Empleados.FindAsync(id);
             if (empleado == null)
             {
-                return NotFound();
+                return NotFound(new { mensaje = $"No se encontró un empleado con el ID {id}." });
             }
 
-            _context.Empleados.Remove(empleado);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Empleados.Remove(empleado);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = "Ocurrió un error al eliminar el empleado.", error = ex.Message });
+            }
 
-            return NoContent();
+            return Ok(new { mensaje = "Empleado eliminado correctamente." });
         }
     }
 }
+

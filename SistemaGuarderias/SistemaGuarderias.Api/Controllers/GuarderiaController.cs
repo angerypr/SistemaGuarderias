@@ -29,6 +29,11 @@ namespace SistemaGuarderias.Api.Controllers
                 })
                 .ToListAsync();
 
+            if (guarderias.Count == 0)
+            {
+                return NotFound(new { mensaje = "No se encontraron guarderías en la base de datos." });
+            }
+
             return Ok(guarderias);
         }
 
@@ -38,7 +43,7 @@ namespace SistemaGuarderias.Api.Controllers
             var guarderia = await _context.Guarderias.FindAsync(id);
             if (guarderia == null)
             {
-                return NotFound();
+                return NotFound(new { mensaje = $"No se encontró una guardería con el ID {id}." });
             }
 
             var dto = new GuarderiaDTO
@@ -54,6 +59,12 @@ namespace SistemaGuarderias.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<GuarderiaDTO>> Create(GuarderiaDTO dto)
         {
+
+            if (await _context.Guarderias.AnyAsync(g => g.Id == dto.Id))
+            {
+                return BadRequest(new { mensaje = "Ya existe una guardería con este ID." });
+            }
+
             var guarderia = new Guarderia
             {
                 Nombre = dto.Nombre,
@@ -79,7 +90,7 @@ namespace SistemaGuarderias.Api.Controllers
             var guarderia = await _context.Guarderias.FindAsync(id);
             if (guarderia == null)
             {
-                return NotFound();
+                return NotFound(new { mensaje = $"No se encontró una guardería con el ID {id}." });
             }
 
             guarderia.Nombre = dto.Nombre;
@@ -88,7 +99,7 @@ namespace SistemaGuarderias.Api.Controllers
             _context.Entry(guarderia).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new { mensaje = "Guardería actualizada correctamente." });
         }
 
         [HttpDelete("{id}")]
@@ -97,13 +108,14 @@ namespace SistemaGuarderias.Api.Controllers
             var guarderia = await _context.Guarderias.FindAsync(id);
             if (guarderia == null)
             {
-                return NotFound();
+                return NotFound(new { mensaje = $"No se encontró una guardería con el ID {id}." });
             }
 
             _context.Guarderias.Remove(guarderia);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new { mensaje = "Guardería eliminada correctamente." });
         }
     }
 }
+
