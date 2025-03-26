@@ -1,0 +1,52 @@
+﻿@model SistemaGuarderias.Web.Models.TutoresViewModel
+
+<div class="card text-primary">
+    <div class="card-header text-center">
+        <h5>Detalles del Tutor</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h5 class="panel-title">Información del Tutor</h5>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="control-label">Nombre</label>
+                            <p>@Model.Nombre</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">Apellido</label>
+                            <p>@Model.Apellido</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">Teléfono</label>
+                            <p>@Model.Telefono</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">Cédula</label>
+                            <p>@Model.Cedula</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">Correo Electrónico</label>
+                            <p>@Model.CorreoElectronico</p>
+                        </div>
+
+                        <div class="form-group">
+                            <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-sm">Volver a la lista</a>
+                            <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-outline-primary btn-sm">Editar</a> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer text-muted text-center">
+        Detalles del Tutor
+    </div>
+</div>

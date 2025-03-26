@@ -1,0 +1,67 @@
+﻿@model SistemaGuarderias.Web.Models.NinosViewModel
+
+<div class="card text-primary">
+    <div class="card-header text-center">
+        <h5>Detalles del Niño</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-2 text-center text-dark">
+                @Html.DisplayNameFor(model => model.Nombre)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Nombre)
+            </dd>
+
+            <dt class="col-sm-2 text-center text-dark">
+                @Html.DisplayNameFor(model => model.Apellido)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Apellido)
+            </dd>
+
+            <dt class="col-sm-2 text-center text-dark">
+                @Html.DisplayNameFor(model => model.Edad)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Edad)
+            </dd>
+
+            <dt class="col-sm-2 text-center text-dark">
+                Guardería Asignada
+            </dt>
+            <dd class="col-sm-10">
+                @if (Model.Guarderia != null)
+                {
+                    <a asp-controller="Guarderias" asp-action="Details" asp-route-id="@Model.GuarderiaId">
+                        @Model.Guarderia.Nombre
+                    </a>
+                }
+                else
+                {
+                    <span class="text-muted">No asignada</span>
+                }
+            </dd>
+
+            <dt class="col-sm-2 text-center text-dark">
+                Tutor Asignado
+            </dt>
+            <dd class="col-sm-10">
+                @if (Model.Tutor != null)
+                {
+                    <a asp-controller="Tutores" asp-action="Details" asp-route-id="@Model.TutorId">
+                        @Model.Tutor.Nombre
+                    </a>
+                }
+                else
+                {
+                    <span class="text-muted">No asignado</span>
+                }
+            </dd>
+        </dl>
+    </div>
+    <div class="card-footer text-center">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning btn-sm">Editar</a>
+        <a asp-action="Index" class="btn btn-outline-success btn-sm">Volver a la lista</a>
+    </div>
+</div>

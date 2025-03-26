@@ -1,0 +1,63 @@
+﻿@model SistemaGuarderias.Web.Models.NinosViewModel
+
+<div class="card text-primary">
+    <div class="card-header text-center">
+        <h5>Añadir Niño</h5>
+    </div>
+    <div class="card-body text-center">
+        <div class="col-md-12">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label for="Nombre">Nombre</label>
+                    <input asp-for="Nombre" class="form-control" placeholder="Nombre">
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="Apellido">Apellido</label>
+                    <input asp-for="Apellido" class="form-control" placeholder="Apellido">
+                    <span asp-validation-for="Apellido" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="Edad">Edad</label>
+                    <input asp-for="Edad" class="form-control" placeholder="Edad" type="number">
+                    <span asp-validation-for="Edad" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="GuarderiaId" class="control-label">Guardería</label>
+                    <select asp-for="GuarderiaId" class="form-control">
+                        <option value="">Seleccione una guardería</option>
+                        @foreach (var guarderia in ViewBag.GuarderiaList)
+                        {
+                            <option value="@guarderia.Id">@guarderia.Nombre</option>
+                        }
+                    </select>
+                    <span asp-validation-for="GuarderiaId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="TutorId" class="control-label">Tutor</label>
+                    <select asp-for="TutorId" class="form-control">
+                        <option value="">Seleccione un tutor</option>
+                        @foreach (var tutor in ViewBag.TutorList)
+                        {
+                            <option value="@tutor.Id">@tutor.Nombre</option>
+                        }
+                    </select>
+                    <span asp-validation-for="TutorId" class="text-danger"></span>
+                </div>
+
+                <div class="card-footer text-center">
+                    <div class="form-group">
+                        <input type="submit" value="Añadir" class="btn btn-outline-primary btn-sm" />
+                        <a asp-action="Index" class="btn btn-outline-success btn-sm">Volver a la Lista</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

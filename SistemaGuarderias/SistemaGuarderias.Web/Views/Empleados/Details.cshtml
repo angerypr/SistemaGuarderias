@@ -1,0 +1,72 @@
+﻿@model EmpleadosViewModel
+
+<div class="card text-primary">
+    <div class="card-header text-center">
+        <h5>Detalles del Empleado</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-2 text-center text-dark">
+                @Html.DisplayNameFor(model => model.Nombre)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Nombre)
+            </dd>
+
+            <dt class="col-sm-2 text-center text-dark">
+                @Html.DisplayNameFor(model => model.Apellido)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Apellido)
+            </dd>
+
+            <dt class="col-sm-2 text-center text-dark">
+                @Html.DisplayNameFor(model => model.Cedula)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Cedula)
+            </dd>
+
+            <dt class="col-sm-2 text-center text-dark">
+                @Html.DisplayNameFor(model => model.Cargo)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Cargo)
+            </dd>
+
+            <dt class="col-sm-2 text-center text-dark">
+                @Html.DisplayNameFor(model => model.Telefono)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Telefono)
+            </dd>
+
+            <dt class="col-sm-2 text-center text-dark">
+                @Html.DisplayNameFor(model => model.CorreoElectronico)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.CorreoElectronico)
+            </dd>
+
+            <dt class="col-sm-2 text-center text-dark">
+                Guardería Asignada
+            </dt>
+            <dd class="col-sm-10">
+                @if (Model.Guarderia != null)
+                {
+                    <a asp-controller="Guarderias" asp-action="Details" asp-route-id="@Model.GuarderiaId">
+                        @Model.Guarderia.Nombre
+                    </a>
+                }
+                else
+                {
+                    <span class="text-muted">No asignada</span>
+                }
+            </dd>
+        </dl>
+    </div>
+    <div class="card-footer text-center">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning btn-sm">Editar</a>
+        <a asp-action="Index" class="btn btn-outline-success btn-sm">Volver a la lista</a>
+    </div>
+</div>
